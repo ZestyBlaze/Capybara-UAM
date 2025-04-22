@@ -24,7 +24,8 @@ public class CapybaraChestLayer extends RenderLayer<Capybara, CapybaraModel> {
             CapybaraModel model = this.getParentModel();
             model.prepareMobModel(entity, limbAngle, limbDistance, tickDelta);
             model.setupAnim(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
-            model.renderToBuffer(matrices, vertexConsumers.getBuffer(RenderType.entityCutoutNoCull(chestCount > 1 ? DOUBLE_CHEST : SINGLE_CHEST)), light, OverlayTexture.NO_WHITE_U);
+            model.renderToBuffer(matrices, vertexConsumers.getBuffer(RenderType.entityCutoutNoCull(chestCount > 1 ? DOUBLE_CHEST : SINGLE_CHEST)), light,
+                    OverlayTexture.NO_OVERLAY);
         }
     }
 }
