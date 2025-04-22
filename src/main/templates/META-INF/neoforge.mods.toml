@@ -8,7 +8,7 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 
-#updateJSONURL="https://change.me.example.invalid/updates.json"
+updateJSONURL="https://raw.githubusercontent.com/ZestyBlaze/Capybara-UAM/refs/heads/1.21-nf/updates.json"
 
 displayURL="https://www.curseforge.com/minecraft/mc-mods/capybara-uam"
 logoFile="icon.png"
