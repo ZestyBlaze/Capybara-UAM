@@ -91,6 +91,7 @@ public class CapybaraModel extends AgeableListModel<Capybara> {
         this.head.yRot = headYaw * (Mth.PI / 180f);
         this.body.yRot = 0;
         this.body.zRot = Mth.cos(limbAngle * speed * 0.4f) * degree * 0.15f * limbDistance;
+
         if(entity.isInWater()) {
             this.body.yRot = Mth.cos(animationProgress * speed * 0.4f) * degree * 0.05f * 1;
             this.body.zRot = 0;
