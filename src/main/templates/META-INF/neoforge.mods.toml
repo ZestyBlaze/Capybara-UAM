@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/ZestyBlaze/Capybara-UAM/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+
+#updateJSONURL="https://change.me.example.invalid/updates.json"
+
+displayURL="https://www.curseforge.com/minecraft/mc-mods/capybara-uam"
+logoFile="icon.png"
+
+credits="Thank you for Coda and TeamDraco for the original Capybara mod"
+authors="${mod_authors}"
+description='''${mod_description}'''
+
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neo_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
