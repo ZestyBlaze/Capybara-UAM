@@ -1,4 +1,7 @@
 {
   "entity.unnamedanimalmod.capybara": "Capybara",
-  "item.unnamedanimalmod.capybara_spawn_egg": "Capybara Spawn Egg"
+  "item.unnamedanimalmod.capybara_spawn_egg": "Capybara Spawn Egg",
+  "subtitle.unnamedanimalmod.capybara.ambient": "Capybara whines",
+  "subtitle.unnamedanimalmod.capybara.death": "Capybara dies",
+  "subtitle.unnamedanimalmod.capybara.hurt": "Capybara hurts"
 }

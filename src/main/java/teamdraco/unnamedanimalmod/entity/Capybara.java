@@ -41,6 +41,7 @@ import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.Nullable;
+import teamdraco.unnamedanimalmod.config.UAMConfig;
 import teamdraco.unnamedanimalmod.data.providers.UAMBlockTagsProvider;
 import teamdraco.unnamedanimalmod.data.providers.UAMItemTagsProvider;
 import teamdraco.unnamedanimalmod.registry.EntityRegistry;
@@ -214,7 +215,7 @@ public class Capybara extends TamableAnimal implements MenuProvider {
         floatStrider();
         checkInsideBlocks();
 
-        if(getPassengers().isEmpty()) {
+        if(UAMConfig.capybaraAttractionGoal.get() && getPassengers().isEmpty()) {
             for(Entity e : level().getEntities(this, getBoundingBox().inflate(0.5))) {
                 if(e instanceof Mob && e.getBbWidth() <= 0.75f && e.getBbHeight() <= 0.75 && !this.isBaby() && e.getClassification(false) != MobCategory.WATER_CREATURE && !isInWater()) {
                     e.startRiding(this);
