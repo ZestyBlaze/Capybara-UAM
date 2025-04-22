@@ -21,15 +21,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -126,6 +125,61 @@ public class Capybara extends TamableAnimal implements MenuProvider {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        Item item = stack.getItem();
+
+        if(!this.level().isClientSide) {
+            if (this.isFood(stack) && this.getHealth() < this.getMaxHealth()) {
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
+                this.heal(item.getFoodProperties(stack, player).nutrition());
+                return InteractionResult.SUCCESS;
+            }
+
+            if (player.isCrouching() && !this.isBaby()) {
+                if (stack.getItem() == Blocks.CHEST.asItem() && this.isTame()) {
+                    if (inventory == null || inventory.getContainerSize() < 27) {
+                        inventory = new SimpleContainer(27);
+                        entityData.set(CHESTS, 1);
+                        if (!player.getAbilities().instabuild) {
+                            stack.shrink(1);
+                        }
+                        return InteractionResult.SUCCESS;
+                    } else if (inventory.getContainerSize() < 54) {
+                        SimpleContainer inv = new SimpleContainer(54);
+                        for (int i = 0; i < 27; i++) {
+                            inv.setItem(i, inventory.getItem(i));
+                        }
+                        inventory = inv;
+                        entityData.set(CHESTS, 2);
+                        if (!player.getAbilities().instabuild) {
+                            stack.shrink(1);
+                        }
+                        return InteractionResult.SUCCESS;
+                    }
+                } else if (stack.getItem() == Items.STICK && !this.isBaby()) {
+                    this.setOrderedToSit(!this.isOrderedToSit());
+                    return InteractionResult.SUCCESS;
+                }
+            } else if (stack.is(UAMItemTagsProvider.CAPYBARA_FOOD) && !isTame()) {
+                if (this.random.nextInt(3) == 0) {
+                    this.tame(player);
+                    this.navigation.stop();
+                    this.setTarget(null);
+                    this.level().broadcastEntityEvent(this, (byte) 7);
+                }
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                } else {
+                    this.level().broadcastEntityEvent(this, (byte) 6);
+                }
+                return InteractionResult.SUCCESS;
+            } else if (!this.isBaby() && this.isTame()) {
+                player.openMenu(this);
+                return InteractionResult.SUCCESS;
+            }
+        }
         return super.mobInteract(player, hand);
     }
 
@@ -180,35 +234,36 @@ public class Capybara extends TamableAnimal implements MenuProvider {
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        compound.putInt("Chests", getChestCount());
+        if (this.getChestCount() > 0) {
+            ListTag listtag = new ListTag();
 
-        if (inventory != null) {
-            ListTag listTag = new ListTag();
-
-            for (int i = 0; i < this.inventory.getContainerSize(); i++) {
+            for(int i = 0; i < this.inventory.getContainerSize(); ++i) {
                 ItemStack itemstack = this.inventory.getItem(i);
                 if (!itemstack.isEmpty()) {
                     CompoundTag compoundtag = new CompoundTag();
-                    compoundtag.putByte("Slot", (byte)(i - 1));
-                    listTag.add(itemstack.save(this.registryAccess(), compoundtag));
+                    compoundtag.putByte("Slot", (byte)(i));
+                    listtag.add(itemstack.save(this.registryAccess(), compoundtag));
                 }
             }
 
-            compound.put("Items", listTag);
+            compound.put("Items", listtag);
         }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-
-        if (compound.contains("Items")) {
+        setChests(compound.getInt("Chests"));
+        this.createInventory();
+        if (this.getChestCount() > 0) {
             ListTag listtag = compound.getList("Items", 10);
 
             for(int i = 0; i < listtag.size(); ++i) {
                 CompoundTag compoundtag = listtag.getCompound(i);
                 int j = compoundtag.getByte("Slot") & 255;
-                if (j < this.inventory.getContainerSize() - 1) {
-                    this.inventory.setItem(j + 1, ItemStack.parse(this.registryAccess(), compoundtag).orElse(ItemStack.EMPTY));
+                if (j < this.inventory.getContainerSize()) {
+                    this.inventory.setItem(j, ItemStack.parse(this.registryAccess(), compoundtag).orElse(ItemStack.EMPTY));
                 }
             }
         }
@@ -225,6 +280,25 @@ public class Capybara extends TamableAnimal implements MenuProvider {
 
     public int getChestCount() {
         return entityData.get(CHESTS);
+    }
+
+    public void setChests(int chests) {
+        entityData.set(CHESTS, chests);
+    }
+
+    protected void createInventory() {
+        SimpleContainer simplecontainer = this.inventory;
+        this.inventory = new SimpleContainer(getChestCount() == 2 ? 54 : 27);
+        if (simplecontainer != null) {
+            int i = Math.min(simplecontainer.getContainerSize(), this.inventory.getContainerSize());
+
+            for(int j = 0; j < i; ++j) {
+                ItemStack itemstack = simplecontainer.getItem(j);
+                if (!itemstack.isEmpty()) {
+                    this.inventory.setItem(j, itemstack.copy());
+                }
+            }
+        }
     }
 
     @Override
