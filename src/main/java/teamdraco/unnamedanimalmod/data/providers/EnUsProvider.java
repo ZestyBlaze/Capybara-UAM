@@ -15,5 +15,8 @@ public class EnUsProvider extends LanguageProvider {
     protected void addTranslations() {
         add(EntityRegistry.CAPYBARA.get(), "Capybara");
         add(ItemRegistry.CAPYBARA_SPAWN_EGG.get(), "Capybara Spawn Egg");
+        add("subtitle.unnamedanimalmod.capybara.ambient", "Capybara whines");
+        add("subtitle.unnamedanimalmod.capybara.hurt", "Capybara hurts");
+        add("subtitle.unnamedanimalmod.capybara.death", "Capybara dies");
     }
 }
