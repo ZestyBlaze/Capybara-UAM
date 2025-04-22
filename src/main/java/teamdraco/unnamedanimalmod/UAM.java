@@ -1,15 +1,21 @@
 package teamdraco.unnamedanimalmod;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
+import teamdraco.unnamedanimalmod.config.UAMConfig;
 import teamdraco.unnamedanimalmod.entity.Capybara;
 import teamdraco.unnamedanimalmod.registry.EntityRegistry;
 import teamdraco.unnamedanimalmod.registry.ItemRegistry;
@@ -19,7 +25,9 @@ import teamdraco.unnamedanimalmod.registry.SoundRegistry;
 public class UAM {
     public static final String MODID = "unnamedanimalmod";
 
-    public UAM(IEventBus bus) {
+    public UAM(IEventBus bus, ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.COMMON, UAMConfig.COMMON_SPEC);
+
         EntityRegistry.ENTITY_TYPES.register(bus);
         SoundRegistry.SOUND_EVENTS.register(bus);
         ItemRegistry.ITEMS.register(bus);
@@ -41,5 +49,10 @@ public class UAM {
     @SubscribeEvent
     public void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(EntityRegistry.CAPYBARA.get(), Capybara.createAttributes().build());
+    }
+
+    @SubscribeEvent
+    public void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        event.register(EntityRegistry.CAPYBARA.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Capybara::checkCapybaraSpawnRules, RegisterSpawnPlacementsEvent.Operation.AND);
     }
 }

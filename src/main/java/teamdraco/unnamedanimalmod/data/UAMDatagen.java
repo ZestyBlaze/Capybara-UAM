@@ -3,15 +3,13 @@ package teamdraco.unnamedanimalmod.data;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.TagsProvider;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import teamdraco.unnamedanimalmod.UAM;
-import teamdraco.unnamedanimalmod.data.providers.EnUsProvider;
-import teamdraco.unnamedanimalmod.data.providers.UAMItemModelProvider;
-import teamdraco.unnamedanimalmod.data.providers.UAMItemTagsProvider;
+import teamdraco.unnamedanimalmod.data.providers.*;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -26,6 +24,10 @@ public class UAMDatagen {
 
         gen.addProvider(event.includeClient(), new EnUsProvider(output));
         gen.addProvider(event.includeClient(), new UAMItemModelProvider(output, fileHelper));
-        gen.addProvider(event.includeServer(), new UAMItemTagsProvider(output, provider, CompletableFuture.completedFuture(TagsProvider.TagLookup.empty()), fileHelper));
+
+        BlockTagsProvider blockTagsProvider = new UAMBlockTagsProvider(output, provider, fileHelper);
+        gen.addProvider(event.includeServer(), blockTagsProvider);
+        gen.addProvider(event.includeServer(), new UAMItemTagsProvider(output, provider, blockTagsProvider.contentsGetter(), fileHelper));
+        gen.addProvider(event.includeServer(), new UAMRegistrySetBuilderProvider(output, provider));
     }
 }

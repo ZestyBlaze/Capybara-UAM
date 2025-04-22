@@ -4,6 +4,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import teamdraco.unnamedanimalmod.config.UAMConfig;
 
 public class CapybaraAnimalAttractionGoal extends Goal {
     private final Mob entity;
@@ -24,15 +25,16 @@ public class CapybaraAnimalAttractionGoal extends Goal {
 
     @Override
     public void start() {
-        super.start();
-        for (Mob mobEntity : entity.level().getEntities(EntityTypeTest.forClass(Mob.class), entity.getBoundingBox().inflate(5), e -> e != entity && e.getVehicle() == null)) {
-            if (mobEntity.getBbWidth() <= 0.75f && mobEntity.getBbHeight() <= 0.75f) {
-                if (mobEntity instanceof TamableAnimal mob) {
-                    if (mob.isOrderedToSit()) {
-                        return;
+        if (UAMConfig.capybaraAttractionGoal.get()) {
+            for (Mob mobEntity : entity.level().getEntities(EntityTypeTest.forClass(Mob.class), entity.getBoundingBox().inflate(5), e -> e != entity && e.getVehicle() == null)) {
+                if (mobEntity.getBbWidth() <= 0.75f && mobEntity.getBbHeight() <= 0.75f) {
+                    if (mobEntity instanceof TamableAnimal mob) {
+                        if (mob.isOrderedToSit()) {
+                            return;
+                        }
                     }
+                    mobEntity.getNavigation().moveTo(entity, mobEntity.getSpeed() + 0.4);
                 }
-                mobEntity.getNavigation().moveTo(entity, mobEntity.getSpeed() + 0.4);
             }
         }
     }

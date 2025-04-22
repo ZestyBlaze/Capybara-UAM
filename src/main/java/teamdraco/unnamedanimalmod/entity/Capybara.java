@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -30,6 +32,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,6 +41,7 @@ import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.Nullable;
+import teamdraco.unnamedanimalmod.data.providers.UAMBlockTagsProvider;
 import teamdraco.unnamedanimalmod.data.providers.UAMItemTagsProvider;
 import teamdraco.unnamedanimalmod.registry.EntityRegistry;
 import teamdraco.unnamedanimalmod.registry.SoundRegistry;
@@ -77,6 +81,12 @@ public class Capybara extends TamableAnimal implements MenuProvider {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 14.0d)
                 .add(Attributes.MOVEMENT_SPEED, 0.2d);
+    }
+
+    public static boolean checkCapybaraSpawnRules(
+            EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
+    ) {
+        return level.getBlockState(pos.below()).is(UAMBlockTagsProvider.CAPYBARAS_SPAWN_ON) && isBrightEnoughToSpawn(level, pos);
     }
 
     @Override
