@@ -3,8 +3,13 @@
   "1.21.1": {
     "3.0.0": "Initial Neoforge Port"
   },
+  "1.21.5": {
+    "3.0.0": "Initial 1.21.5 Port"
+  },
   "promos": {
     "1.21.1-latest": "3.0.0",
-    "1.21.1-recommended": "3.0.0"
+    "1.21.1-recommended": "3.0.0",
+    "1.21.5-latest": "3.0.0",
+    "1.21.5-recommended": "3.0.0"
   }
 }
