@@ -9,7 +9,7 @@ import teamdraco.unnamedanimalmod.UAMClient;
 
 import java.util.Locale;
 
-public class CapybaraRenderer extends MobRenderer<Capybara, CapybaraModel> {
+public class CapybaraRenderer extends MobRenderer<Capybara, CapybaraRenderState ,CapybaraModel> {
     private static final ResourceLocation TEXTURE = UAM.reloc("textures/entity/capybara.png");
     private static final ResourceLocation MARIO = UAM.reloc("textures/entity/mario.png");
 
@@ -19,19 +19,31 @@ public class CapybaraRenderer extends MobRenderer<Capybara, CapybaraModel> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(Capybara entity) {
-        if(entity.getName().getString().toLowerCase(Locale.ROOT).equals("mario")) {
+    public ResourceLocation getTextureLocation(CapybaraRenderState state) {
+        if(state.customName != null && state.customName.getString().toLowerCase(Locale.ROOT).equals("mario")) {
             return MARIO;
         }
         return TEXTURE;
     }
 
     @Override
-    protected void setupRotations(Capybara entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale) {
-        super.setupRotations(entity, poseStack, bob, yBodyRot, partialTick, scale);
+    protected void setupRotations(CapybaraRenderState renderState, PoseStack poseStack, float bodyRot, float scale) {
+        super.setupRotations(renderState, poseStack, bodyRot, scale);
         poseStack.scale(0.77f, 0.77f, 0.77f);
-        if(entity.isInWater() && !entity.isBaby()) {
+        if(renderState.isInWater && !renderState.isBaby) {
             poseStack.translate(0, -0.625, 0);
         }
+    }
+
+    @Override
+    public CapybaraRenderState createRenderState() {
+        return new CapybaraRenderState();
+    }
+
+    @Override
+    public void extractRenderState(Capybara capybara, CapybaraRenderState state, float age) {
+        super.extractRenderState(capybara, state, age);
+        state.isSitting = capybara.isInSittingPose();
+        state.chestCount = capybara.getChestCount();
     }
 }

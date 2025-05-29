@@ -1,6 +1,7 @@
 package teamdraco.unnamedanimalmod.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -79,13 +80,13 @@ public class Capybara extends TamableAnimal implements MenuProvider {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes()
+        return Animal.createAnimalAttributes()
                 .add(Attributes.MAX_HEALTH, 14.0d)
                 .add(Attributes.MOVEMENT_SPEED, 0.2d);
     }
 
     public static boolean checkCapybaraSpawnRules(
-            EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
+            EntityType<? extends Animal> animal, LevelAccessor level, EntitySpawnReason spawnType, BlockPos pos, RandomSource random
     ) {
         return level.getBlockState(pos.below()).is(UAMBlockTagsProvider.CAPYBARAS_SPAWN_ON) && isBrightEnoughToSpawn(level, pos);
     }
@@ -121,8 +122,8 @@ public class Capybara extends TamableAnimal implements MenuProvider {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        if (isInvulnerableTo(source) || source.getEntity() == getOwner()) {
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        if (isInvulnerableTo(level, source) || source.getEntity() == getOwner()) {
             return false;
         } else {
             Entity entity = source.getEntity();
@@ -130,7 +131,7 @@ public class Capybara extends TamableAnimal implements MenuProvider {
             if (entity != null && !(entity instanceof Player) && !(entity instanceof AbstractArrow)) {
                 amount = (amount + 1.0f) / 2.0f;
             }
-            return super.hurt(source, amount);
+            return super.hurtServer(level, source, amount);
         }
     }
 
@@ -140,11 +141,11 @@ public class Capybara extends TamableAnimal implements MenuProvider {
         Item item = stack.getItem();
 
         if(!this.level().isClientSide) {
-            if (this.isFood(stack) && this.getHealth() < this.getMaxHealth()) {
+            if (this.isFood(stack) && this.getHealth() < this.getMaxHealth() && stack.has(DataComponents.FOOD)) {
                 if (!player.getAbilities().instabuild) {
                     stack.shrink(1);
                 }
-                this.heal(item.getFoodProperties(stack, player).nutrition());
+                this.heal(stack.get(DataComponents.FOOD).nutrition());
                 return InteractionResult.SUCCESS;
             }
 
@@ -201,7 +202,7 @@ public class Capybara extends TamableAnimal implements MenuProvider {
 
     @Override
     public @Nullable AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
-        return EntityRegistry.CAPYBARA.get().create(serverLevel);
+        return EntityRegistry.CAPYBARA.get().create(serverLevel, EntitySpawnReason.BREEDING);
     }
 
     @Override
@@ -213,7 +214,6 @@ public class Capybara extends TamableAnimal implements MenuProvider {
     public void tick() {
         super.tick();
         floatStrider();
-        checkInsideBlocks();
 
         if(UAMConfig.capybaraAttractionGoal.get() && getPassengers().isEmpty()) {
             for(Entity e : level().getEntities(this, getBoundingBox().inflate(0.5))) {
@@ -234,7 +234,7 @@ public class Capybara extends TamableAnimal implements MenuProvider {
     private void floatStrider() {
         if(this.isUnderWater()) {
             CollisionContext shapeContext = CollisionContext.of(this);
-            if(shapeContext.isAbove(LiquidBlock.STABLE_SHAPE, this.blockPosition(), true) && !this.level().getFluidState(this.blockPosition().above()).is(FluidTags.WATER)) {
+            if(shapeContext.isAbove(LiquidBlock.SHAPE_STABLE, this.blockPosition(), true) && !this.level().getFluidState(this.blockPosition().above()).is(FluidTags.WATER)) {
                 this.setOnGround(true);
             } else {
                 this.setDeltaMovement(this.getDeltaMovement().scale(0.5d).add(0.0d, 0.05d, 0.0d));
@@ -265,14 +265,14 @@ public class Capybara extends TamableAnimal implements MenuProvider {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        setChests(compound.getInt("Chests"));
+        setChests(compound.getInt("Chests").get());
         this.createInventory();
         if (this.getChestCount() > 0) {
-            ListTag listtag = compound.getList("Items", 10);
+            ListTag listtag = compound.getList("Items").get();
 
             for(int i = 0; i < listtag.size(); ++i) {
-                CompoundTag compoundtag = listtag.getCompound(i);
-                int j = compoundtag.getByte("Slot") & 255;
+                CompoundTag compoundtag = listtag.getCompound(i).get();
+                int j = compoundtag.getByte("Slot").get() & 255;
                 if (j < this.inventory.getContainerSize()) {
                     this.inventory.setItem(j, ItemStack.parse(this.registryAccess(), compoundtag).orElse(ItemStack.EMPTY));
                 }
@@ -313,19 +313,19 @@ public class Capybara extends TamableAnimal implements MenuProvider {
     }
 
     @Override
-    protected void dropEquipment() {
-        super.dropEquipment();
+    protected void dropEquipment(ServerLevel level) {
+        super.dropEquipment(level);
         if(getChestCount() > 0) {
             if(!this.level().isClientSide()) {
                 for(int c = 0; c < getChestCount(); c++) {
-                    this.spawnAtLocation(Blocks.CHEST);
+                    this.spawnAtLocation(level, Blocks.CHEST);
                 }
 
                 if(this.inventory != null) {
                     for(int i = 0; i < this.inventory.getContainerSize(); i++) {
                         ItemStack stack = this.inventory.getItem(i);
                         if(!stack.isEmpty()) {
-                            this.spawnAtLocation(stack);
+                            this.spawnAtLocation(level, stack);
                         }
                     }
                 }

@@ -1,7 +1,6 @@
 package teamdraco.unnamedanimalmod.entity;
 
-import com.google.common.collect.ImmutableList;
-import net.minecraft.client.model.AgeableListModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
@@ -10,10 +9,7 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 
-import java.util.Collections;
-
-@SuppressWarnings("unchecked")
-public class CapybaraModel extends AgeableListModel<Capybara> {
+public class CapybaraModel extends EntityModel<CapybaraRenderState> {
     private final ModelPart body;
     private final ModelPart rightBackLeg;
     private final ModelPart leftBackLeg;
@@ -28,6 +24,7 @@ public class CapybaraModel extends AgeableListModel<Capybara> {
     private final ModelPart hatBrim;
 
     public CapybaraModel(ModelPart root) {
+        super(root);
         this.body = root.getChild("body");
         this.head = root.getChild("head");
         this.chestRight = this.body.getChild("chestRight");
@@ -64,19 +61,8 @@ public class CapybaraModel extends AgeableListModel<Capybara> {
         return LayerDefinition.create(modelData, 80, 74);
     }
 
-
     @Override
-    protected Iterable<ModelPart> headParts() {
-        return Collections.EMPTY_LIST;
-    }
-
-    @Override
-    protected Iterable<ModelPart> bodyParts() {
-        return ImmutableList.of(body, leftBackLeg, leftFrontLeg, rightBackLeg, rightFrontLeg, head);
-    }
-
-    @Override
-    public void setupAnim(Capybara entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+    public void setupAnim(CapybaraRenderState state) {
         this.earRight.xRot = -0.39269908169872414f;
         this.earRight.yRot = -0.39269908169872414f;
         this.body.xRot = -0.08726646259971647f;
@@ -87,21 +73,21 @@ public class CapybaraModel extends AgeableListModel<Capybara> {
         float speed = 1.0f;
         float degree = 1.0f;
 
-        this.head.xRot = headPitch * (Mth.PI / 180f);
-        this.head.yRot = headYaw * (Mth.PI / 180f);
+        this.head.xRot = state.xRot * (Mth.PI / 180f);
+        this.head.yRot = state.yRot * (Mth.PI / 180f);
         this.body.yRot = 0;
-        this.body.zRot = Mth.cos(limbAngle * speed * 0.4f) * degree * 0.15f * limbDistance;
+        this.body.zRot = Mth.cos((float) (state.z * speed * 0.4f)) * degree * 0.15f * state.walkAnimationSpeed;
 
-        if(entity.isInWater()) {
-            this.body.yRot = Mth.cos(animationProgress * speed * 0.4f) * degree * 0.05f * 1;
+        if(state.isInWater) {
+            this.body.yRot = Mth.cos(state.ageInTicks * speed * 0.4f) * degree * 0.05f * 1;
             this.body.zRot = 0;
-            this.leftBackLeg.xRot = Mth.cos(1.0f + animationProgress * speed * 0.4f) * degree * 1.2f * 0.2f + 0.45f;
-            this.rightBackLeg.xRot = Mth.cos(1.0F + animationProgress * speed * 0.4F) * degree * -1.2F * 0.2F + 0.45F;
-            this.rightFrontLeg.xRot = Mth.cos(1.0F + animationProgress * speed * 0.4F) * degree * 0.8F * 0.2F + 0.45F;
-            this.leftFrontLeg.xRot = Mth.cos(1.0F + animationProgress * speed * 0.4F) * degree * -0.8F * 0.2F + 0.45F;
-            this.head.xRot += Mth.cos(animationProgress * speed * 0.4F) * degree * 0.2F * 0.2F - 0.25F;
+            this.leftBackLeg.xRot = Mth.cos(1.0f + state.ageInTicks * speed * 0.4f) * degree * 1.2f * 0.2f + 0.45f;
+            this.rightBackLeg.xRot = Mth.cos(1.0F + state.ageInTicks * speed * 0.4F) * degree * -1.2F * 0.2F + 0.45F;
+            this.rightFrontLeg.xRot = Mth.cos(1.0F + state.ageInTicks * speed * 0.4F) * degree * 0.8F * 0.2F + 0.45F;
+            this.leftFrontLeg.xRot = Mth.cos(1.0F + state.ageInTicks * speed * 0.4F) * degree * -0.8F * 0.2F + 0.45F;
+            this.head.xRot += Mth.cos(state.ageInTicks * speed * 0.4F) * degree * 0.2F * 0.2F - 0.25F;
         } else {
-            if(entity.isInSittingPose()) {
+            if(state.isSitting) {
                 this.body.y = 17.0F;
                 this.body.yRot = 0.0F;
                 this.rightBackLeg.y = 21.3F;
@@ -130,10 +116,10 @@ public class CapybaraModel extends AgeableListModel<Capybara> {
                 this.leftFrontLeg.yRot = 0.0F;
                 this.head.y = 4.5F;
 
-                this.leftBackLeg.xRot = Mth.cos(1.0F + limbAngle * speed * 0.4F) * degree * 0.8F * limbDistance;
-                this.rightBackLeg.xRot = Mth.cos(1.0F + limbAngle * speed * 0.4F) * degree * -0.8F * limbDistance;
-                this.rightFrontLeg.xRot = Mth.cos(1.0F + limbAngle * speed * 0.4F) * degree * 0.8F * limbDistance;
-                this.leftFrontLeg.xRot = Mth.cos(1.0F + limbAngle * speed * 0.4F) * degree * -0.8F * limbDistance;
+                this.leftBackLeg.xRot = Mth.cos(1.0F + state.walkAnimationPos * speed * 0.4F) * degree * 0.8F * state.walkAnimationSpeed;
+                this.rightBackLeg.xRot = Mth.cos(1.0F + state.walkAnimationPos * speed * 0.4F) * degree * -0.8F * state.walkAnimationSpeed;
+                this.rightFrontLeg.xRot = Mth.cos(1.0F + state.walkAnimationPos * speed * 0.4F) * degree * 0.8F * state.walkAnimationSpeed;
+                this.leftFrontLeg.xRot = Mth.cos(1.0F + state.walkAnimationPos * speed * 0.4F) * degree * -0.8F * state.walkAnimationSpeed;
             }
         }
     }

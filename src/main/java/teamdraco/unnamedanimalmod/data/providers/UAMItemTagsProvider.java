@@ -9,8 +9,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.Nullable;
 import teamdraco.unnamedanimalmod.UAM;
 
 import java.util.concurrent.CompletableFuture;
@@ -18,8 +16,8 @@ import java.util.concurrent.CompletableFuture;
 public class UAMItemTagsProvider extends ItemTagsProvider {
     public static final TagKey<Item> CAPYBARA_FOOD = ItemTags.create(UAM.reloc("capybara_food"));
 
-    public UAMItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagLookup<Block>> blockTags, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, blockTags, UAM.MODID, existingFileHelper);
+    public UAMItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagLookup<Block>> blockTags) {
+        super(output, lookupProvider, blockTags, UAM.MODID);
     }
 
     @Override

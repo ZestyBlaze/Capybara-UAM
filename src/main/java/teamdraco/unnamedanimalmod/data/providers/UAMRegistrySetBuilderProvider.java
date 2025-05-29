@@ -8,6 +8,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -18,7 +19,6 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import teamdraco.unnamedanimalmod.UAM;
 import teamdraco.unnamedanimalmod.registry.EntityRegistry;
 
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -40,9 +40,8 @@ public class UAMRegistrySetBuilderProvider extends DatapackBuiltinEntriesProvide
         bootstrap.register(ADD_CAPYBARA_SPAWNS,
                 new BiomeModifiers.AddSpawnsBiomeModifier(
                         HolderSet.direct(biomes.getOrThrow(Biomes.MANGROVE_SWAMP)),
-                        List.of(
-                                new MobSpawnSettings.SpawnerData(EntityRegistry.CAPYBARA.get(), 30, 1, 4)
+                        WeightedList.<MobSpawnSettings.SpawnerData>builder().add(new MobSpawnSettings.SpawnerData(EntityRegistry.CAPYBARA.get(), 1, 4), 30).build()
                         )
-                ));
+                );
     }
 }

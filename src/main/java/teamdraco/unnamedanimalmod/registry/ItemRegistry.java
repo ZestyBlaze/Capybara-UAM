@@ -1,7 +1,9 @@
 package teamdraco.unnamedanimalmod.registry;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.common.DeferredSpawnEggItem;
+import net.minecraft.world.item.SpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import teamdraco.unnamedanimalmod.UAM;
@@ -11,6 +13,6 @@ public class ItemRegistry {
 
     public static final DeferredItem<Item> CAPYBARA_SPAWN_EGG = ITEMS.register(
             "capybara_spawn_egg",
-            () -> new DeferredSpawnEggItem(EntityRegistry.CAPYBARA, 0x9e5d39, 0x412f24, new Item.Properties())
+            () -> new SpawnEggItem(EntityRegistry.CAPYBARA.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, UAM.reloc("capybara_spawn_egg"))))
     );
 }

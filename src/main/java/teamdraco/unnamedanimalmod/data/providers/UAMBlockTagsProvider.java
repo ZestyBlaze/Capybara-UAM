@@ -7,8 +7,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.Nullable;
 import teamdraco.unnamedanimalmod.UAM;
 
 import java.util.concurrent.CompletableFuture;
@@ -16,8 +14,8 @@ import java.util.concurrent.CompletableFuture;
 public class UAMBlockTagsProvider extends BlockTagsProvider {
     public static final TagKey<Block> CAPYBARAS_SPAWN_ON = BlockTags.create(UAM.reloc("capybaras_spawn_on"));
 
-    public UAMBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, UAM.MODID, existingFileHelper);
+    public UAMBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, UAM.MODID);
     }
 
     @Override
