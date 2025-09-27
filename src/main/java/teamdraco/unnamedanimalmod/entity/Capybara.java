@@ -2,8 +2,6 @@ package teamdraco.unnamedanimalmod.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -12,10 +10,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -40,6 +35,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.Nullable;
 import teamdraco.unnamedanimalmod.config.UAMConfig;
@@ -243,40 +240,24 @@ public class Capybara extends TamableAnimal implements MenuProvider {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
-        compound.putInt("Chests", getChestCount());
+    public void addAdditionalSaveData(ValueOutput valueOutput) {
+        super.addAdditionalSaveData(valueOutput);
+        valueOutput.putInt("Chests", getChestCount());
+
         if (this.getChestCount() > 0) {
-            ListTag listtag = new ListTag();
-
             for(int i = 0; i < this.inventory.getContainerSize(); ++i) {
-                ItemStack itemstack = this.inventory.getItem(i);
-                if (!itemstack.isEmpty()) {
-                    CompoundTag compoundtag = new CompoundTag();
-                    compoundtag.putByte("Slot", (byte)(i));
-                    listtag.add(itemstack.save(this.registryAccess(), compoundtag));
-                }
+                ContainerHelper.saveAllItems(valueOutput, this.inventory.getItems());
             }
-
-            compound.put("Items", listtag);
         }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-        setChests(compound.getInt("Chests").get());
+    public void readAdditionalSaveData(ValueInput valueInput) {
+        super.readAdditionalSaveData(valueInput);
+        setChests(valueInput.getInt("Chests").orElse(0));
         this.createInventory();
         if (this.getChestCount() > 0) {
-            ListTag listtag = compound.getList("Items").get();
-
-            for(int i = 0; i < listtag.size(); ++i) {
-                CompoundTag compoundtag = listtag.getCompound(i).get();
-                int j = compoundtag.getByte("Slot").get() & 255;
-                if (j < this.inventory.getContainerSize()) {
-                    this.inventory.setItem(j, ItemStack.parse(this.registryAccess(), compoundtag).orElse(ItemStack.EMPTY));
-                }
-            }
+            ContainerHelper.loadAllItems(valueInput, this.inventory.getItems());
         }
     }
 

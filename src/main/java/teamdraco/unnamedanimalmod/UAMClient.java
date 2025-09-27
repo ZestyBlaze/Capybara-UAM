@@ -9,7 +9,7 @@ import teamdraco.unnamedanimalmod.entity.CapybaraModel;
 import teamdraco.unnamedanimalmod.entity.CapybaraRenderer;
 import teamdraco.unnamedanimalmod.registry.EntityRegistry;
 
-@EventBusSubscriber(modid = UAM.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = UAM.MODID, value = Dist.CLIENT)
 public class UAMClient {
     public static final ModelLayerLocation CAPYBARA = new ModelLayerLocation(UAM.reloc("capybara"), "main");
 

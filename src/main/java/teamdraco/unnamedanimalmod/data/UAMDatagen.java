@@ -13,8 +13,9 @@ import teamdraco.unnamedanimalmod.data.providers.*;
 
 import java.util.concurrent.CompletableFuture;
 
-@EventBusSubscriber(modid = UAM.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = UAM.MODID, value = Dist.CLIENT)
 public class UAMDatagen {
+
     @SubscribeEvent
     public static void onDataLoad(GatherDataEvent.Client event) {
         DataGenerator gen = event.getGenerator();
